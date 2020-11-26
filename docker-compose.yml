@@ -1,0 +1,37 @@
+version: '3.8'
+
+#Docker Networks
+networks:
+  laravel:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+
+# Workflow
+services:
+  postgres:
+    image: postgres:9.4.1
+    ports:
+      - "5432:5432"
+    environment: 
+      -  POSTGRES_PASSWORD=${DB_POSTGRES_PASSWORD}
+    volumes:
+      - /usr/volumes/pgdata/etc:/etc/postgresql:Z
+      - /usr/volumes/dev/volumes/pgdata/log:/var/log/postgresql:Z
+      - /usr/volumes/pgdata/data:/var/lib/postgresql/data:Z
+      - dbdata:/var/lib/postgresql/
+  app:
+    build: .
+    command: bundle exec rails s -b 0.0.0.0
+    environment:
+      - BUNDLE_PATH=/bundle
+    ports:
+      - 3000:3000
+    links:
+      - postgres
+    volumes:
+      - bundle:/bundle:Z
+      - .:/myapp:Z
