@@ -1,48 +1,34 @@
+FROM ruby:2.5
 # FROM ruby:2.5.1-alpine
+
+# DotEnv
+ENV APP_HOME /myapp
 # ENV BUNDLER_VERSION=2.0.2
 
-# RUN apk add --update --no-cache \
-#       binutils-gold \
-#       build-base \
-#       curl \
-#       file \
-#       g++ \
-#       gcc \
-#       git \
-#       less \
-#       libstdc++ \
-#       libffi-dev \
-#       libc-dev \
-#       linux-headers \
-#       libxml2-dev \
-#       libxslt-dev \
-#       libgcrypt-dev \
-#       make \
-#       netcat-openbsd \
-#       nodejs \
-#       openssl \
-#       pkgconfig \
-#       postgresql-dev \
-#       python \
-#       tzdata \
-#       yarn
+# Add dependencies
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev sqlite3 nodejs yarn
 
-# RUN gem install bundler -v 2.0.2
+# Generate work directory
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
 
+# Copy Config
+COPY ./compose/ruby/config/Gemfile* $APP_HOME/
 
-# RUN mkdir /myapp
-# WORKDIR /myapp
-# COPY ./compose/ruby/config/Gemfile* /myapp/
-# RUN bundle config build.nokogiri --use-system-libraries
-# RUN bundle check || bundle install
-# COPY . /myapp
+# Generate project (Install dependencies)
+RUN bundle config build.nokogiri --use-system-libraries
+RUN bundle check || bundle install
 
-#Dockerfile
-FROM ruby:2.5
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev sqlite3 nodejs
-RUN mkdir /myapp
-WORKDIR /myapp
-COPY ./compose/ruby/config/Gemfile /myapp/Gemfile
-COPY ./compose/ruby/config/Gemfile.lock /myapp/Gemfile.lock
-RUN bundle install
-COPY . /myapp
+# COPY package.json yarn.lock ./
+# RUN yarn install --check-files
+
+# Add source to project
+COPY . $APP_HOME
+
+# Add a script to be executed every time the container starts.
+COPY ./compose/ruby/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
+
+# Check Server
+# RUN rm -f /rails/tmp/pids/server.cpid
