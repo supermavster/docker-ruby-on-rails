@@ -30,7 +30,7 @@ RUN apk add  binutils-gold \
       tzdata \
       yarn
 
-RUN gem install bundler -v ${BUNDLER_VERSION}
+RUN gem install bundler -v 2.0.2
 
 # Generate work directory
 RUN mkdir /app
@@ -52,4 +52,4 @@ RUN bundle check || bundle install
 # Add source to project
 COPY . ./
 
-ENTRYPOINT ["./compose/ruby/entrypoint.sh"]
+# ENTRYPOINT ["./compose/ruby/entrypoint.sh"]

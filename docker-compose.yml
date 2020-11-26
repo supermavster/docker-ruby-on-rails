@@ -16,7 +16,7 @@ volumes:
 
 # Workflow
 services:
-  app:
+  ruby:
     build: 
       context: .
       dockerfile: ./compose/ruby/DockerFile
