@@ -38,6 +38,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/ruby/DockerFile
+    # command: bundle exec rails s -p 3000 -b '0.0.0.0'
     container_name: ruby
     depends_on:
       - db
@@ -53,3 +54,17 @@ services:
       - "3000:3000"
     networks:
       - rails_network
+
+  rails:
+    build:
+      context: .
+      dockerfile: ./compose/ruby/DockerFile
+    container_name: rails
+    volumes:
+      - ./source:/myapp
+    working_dir: /myapp
+    depends_on:
+      - ruby
+    networks:
+      - rails_network
+    entrypoint: ['rails']
