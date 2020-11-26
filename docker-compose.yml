@@ -2,36 +2,53 @@ version: '3.8'
 
 #Docker Networks
 networks:
-  laravel:
+  rails:
     driver: bridge
 
 #Volumes
 volumes:
-  dbdata:
+  node_modules:
+    driver: local
+  gem_cache:
+    driver: local
+  db_data:
     driver: local
 
 # Workflow
 services:
-  postgres:
-    image: postgres:9.4.1
-    ports:
-      - "5432:5432"
-    environment: 
-      -  POSTGRES_PASSWORD=${DB_POSTGRES_PASSWORD}
-    volumes:
-      - /usr/volumes/pgdata/etc:/etc/postgresql:Z
-      - /usr/volumes/dev/volumes/pgdata/log:/var/log/postgresql:Z
-      - /usr/volumes/pgdata/data:/var/lib/postgresql/data:Z
-      - dbdata:/var/lib/postgresql/
   app:
-    build: .
-    command: bundle exec rails s -b 0.0.0.0
-    environment:
-      - BUNDLE_PATH=/bundle
+    build: 
+      context: .
+      dockerfile: ./compose/ruby/DockerFile
     ports:
       - 3000:3000
-    links:
-      - postgres
+    container_name: ruby
+    depends_on:
+      - database
+      - redis
     volumes:
-      - bundle:/bundle:Z
-      - .:/myapp:Z
+      - ./source:/app
+      - gem_cache:/usr/local/bundle/gems
+      - node_modules:/app/node_modules
+    env_file: .env
+    environment:
+      RAILS_ENV: development
+    networks:
+    - rails
+    
+  database:
+    image: postgres:12.1
+    container_name: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+    - rails
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - rails
