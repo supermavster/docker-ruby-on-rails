@@ -1,0 +1,19 @@
+FROM ruby:2.5
+
+# Add dependencies
+RUN apt-get update -qq
+RUN apt-get install -y build-essential libpq-dev sqlite3 nodejs
+
+# Generate work directory
+RUN mkdir /myapp
+WORKDIR /myapp
+
+# Copy Config
+COPY ./compose/ruby/config/Gemfile /myapp/Gemfile
+COPY ./compose/ruby/config/Gemfile.lock /myapp/Gemfile.lock
+
+# Generate project
+RUN bundle install
+
+# Add source to project
+COPY . /myapp
