@@ -1,0 +1,1 @@
+docker-compose run --rm web rails new . --force --database=postgresql
