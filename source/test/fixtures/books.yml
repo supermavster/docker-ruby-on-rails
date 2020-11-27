@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  author: MyString
+  description: MyText
+  isbn: MyString
+  pages_count: 1
+
+two:
+  title: MyString
+  author: MyString
+  description: MyText
+  isbn: MyString
+  pages_count: 1
