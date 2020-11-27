@@ -27,6 +27,7 @@ jobs:
       - name: Run tests
         run: |
           if [ -f docker-compose.yml ]; then
+            cp .env.example .env
             docker-compose --file docker-compose.yml build
           else
             docker build . --file Dockerfile
